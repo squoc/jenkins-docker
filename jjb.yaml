@@ -1,0 +1,28 @@
+- job:
+    name: automated-pipeline
+    description: 'seed job for pipeline'
+    project-type: pipeline
+    pipeline-scm:
+      scm:
+        - git:
+            url: https://github.com/squoc/jenkins-docker.git
+            branches:
+              - origin/main
+    triggers:
+      - pollscm:
+          cron: "* * * * *"
+          ignore-post-commit-hooks: True
+
+- job:
+   name: 'build'
+   project-type: freestyle
+   description: 'build source code by maven and pakage to docker image'
+   builders:
+     - shell: "bash ~/jenkins-docker-deployment/build-docker.sh"
+
+- job:
+   name: 'deploy'
+   project-type: freestyle
+   description: 'deploy to docker tomcat'
+   builders:
+     - shell: "bash ~/jenkins-docker-deployment/run-docker.sh"
